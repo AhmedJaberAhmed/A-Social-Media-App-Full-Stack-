@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram/features/posts/presentaion/pages/postTile.dart';
 
 import '../../../authentication/presentaion/cubits/auth_cubit/auth_cubit.dart';
+import '../../../posts/presentaion/cubits/posts_cubit/post_cubit.dart';
 import '../component/bio_box.dart';
 import '../cubite/profile_cubit/profile_cubit.dart';
 import 'editProfilePage.dart';
@@ -21,6 +23,8 @@ class _ProfilePageState extends State<ProfilePage> {
   // cubits
   late final authCubit = context.read<AuthCubit>();
   late final profileCubit = context.read<ProfileCubit>();
+
+  int postCount = 0;
 
   @override
   void initState() {
@@ -71,9 +75,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   // Profile Image
                   CachedNetworkImage(
-                    key: ValueKey('${user.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}'),
-                    imageUrl: '${user.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}',
-                    placeholder: (context, url) => const CircularProgressIndicator(),
+                    key: ValueKey(
+                        '${user.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}'),
+                    imageUrl:
+                        '${user.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}',
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
                     errorWidget: (context, url, error) => Icon(
                       Icons.person,
                       size: 72,
@@ -91,7 +98,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-
 
                   const SizedBox(height: 25),
 
@@ -129,6 +135,36 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                   ),
+
+                  BlocBuilder<PostCubit, PostState>(builder: (context, state) {
+                    if (state is PostLoaded) {
+                      final userPosts = state.posts
+                          .where((post) => post.userId == widget.uid)
+                          .toList();
+                      postCount = userPosts.length;
+                      return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: postCount,
+                        itemBuilder: (context, index) {
+                          final post = userPosts[index];
+                          return PostTile(
+                              post: post,
+                              onDeletePressed: () {
+                                context.read<PostCubit>().deletePost(post.id);
+                              });
+                        },
+                      );
+                    } else if (state is PostILoading) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      return Center(
+                        child: Text("No Posts"),
+                      );
+                    }
+                  })
                 ],
               ),
             ),

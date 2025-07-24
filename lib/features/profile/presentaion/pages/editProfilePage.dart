@@ -91,7 +91,7 @@ class _EditProfilepageState extends State<EditProfilepage> {
     });
   }
 
-  Widget BuildEditPage( ) {
+  Widget BuildEditPage() {
     return Scaffold(
         appBar: AppBar(
           actions: [
@@ -104,79 +104,71 @@ class _EditProfilepageState extends State<EditProfilepage> {
         body: SafeArea(
           child: Center(
               child: Column(
-                children: [
-                  Center(
-                    child: Container(
-                        height: 200,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
-                          shape: BoxShape.circle,
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: (!kIsWeb && imagePickedFile != null)
-                            ? Image.file(
-                          File(imagePickedFile!.path!),
-                          fit: BoxFit.cover,
-                        )
-                            :
-
-                        (kIsWeb && webImage != null)
-                            ? Image.memory(
-                          webImage!,
-                          fit: BoxFit.cover,
-                        )
-                            :
-
-                        CachedNetworkImage(
-                          imageUrl: '${widget.profileUser.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}',
-
-
-                          placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-
-                          errorWidget: (context, url, error) => Icon(
-                            Icons.person,
-                            size: 72,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-
-                          imageBuilder: (context, imageProvider) => Image(
-                            image: imageProvider,
+            children: [
+              Center(
+                child: Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      shape: BoxShape.circle,
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: (!kIsWeb && imagePickedFile != null)
+                        ? Image.file(
+                            File(imagePickedFile!.path!),
                             fit: BoxFit.cover,
-                          ),
-                        )
-                    ), //
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Center(
-                    child: MaterialButton(
-                      color: Colors.blue,
-                      onPressed: pickImage,
-                      child: Text("Pick Image"),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: Text(
-                      "Bio",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: MyTextField(
-                        controller: bioTextEditingController,
-                        hintText: widget.profileUser.bio,
-                        obscureText: false),
-                  )
-                ],
-              )),
+                          )
+                        : (kIsWeb && webImage != null)
+                            ? Image.memory(
+                                webImage!,
+                                fit: BoxFit.cover,
+                              )
+                            : CachedNetworkImage(
+                                imageUrl:
+                                    '${widget.profileUser.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}',
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.person,
+                                  size: 72,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                imageBuilder: (context, imageProvider) => Image(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              )), //
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              Center(
+                child: MaterialButton(
+                  color: Colors.blue,
+                  onPressed: pickImage,
+                  child: Text("Pick Image"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Text(
+                  "Bio",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: MyTextField(
+                    controller: bioTextEditingController,
+                    hintText: widget.profileUser.bio,
+                    obscureText: false),
+              )
+            ],
+          )),
         ));
   }
 }

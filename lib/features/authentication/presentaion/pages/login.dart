@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:instagram/features/authentication/presentaion/cubits/auth_cubit/auth_cubit.dart';
- import '../components/my_buttun.dart';
+ import '../../../../responsive/canstariant_scaffold.dart';
+import '../components/my_buttun.dart';
 import '../components/my_textField.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,8 +22,9 @@ class _LoginPageState extends State<LoginPage> {
   final PassController = TextEditingController();
 
   void login() {
-    final String email = emailController.text;
-    final String password = PassController.text;
+    final String email = emailController.text.trim();
+    final String password = PassController.text.trim();
+
     final authCubit = context.read<AuthCubit>();
 
     if (email.isNotEmpty && password.isNotEmpty) {
@@ -46,10 +48,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ConstrainedScaffold(
       body: SafeArea(
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView( // Added scroll view
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -74,7 +76,10 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       TextSpan(
                         text: "Register now",
-                        style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             widget.togglePages();
@@ -83,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+                SizedBox(height: 25), // Add some bottom spacing
               ],
             ),
           ),
@@ -90,4 +96,5 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
 }

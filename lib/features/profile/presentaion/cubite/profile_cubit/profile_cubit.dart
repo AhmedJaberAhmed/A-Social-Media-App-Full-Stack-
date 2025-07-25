@@ -54,13 +54,15 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       // ✅ Generate a unique filename
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final fileName = '$uid\_$timestamp.jpg';
+      final fileName = '${uid}_$timestamp.jpg';
 
       // ✅ Upload the new profile image (if provided)
       if (imageMobilePath != null) {
-        imageDownloadUrl = await storageRepo.UploadProfileImageMobile(imageMobilePath, fileName);
+        imageDownloadUrl = await storageRepo.UploadProfileImageMobile(
+            imageMobilePath, fileName);
       } else if (imageWebBytes != null) {
-        imageDownloadUrl = await storageRepo.UploadProfileImageWeb(imageWebBytes, fileName);
+        imageDownloadUrl =
+            await storageRepo.UploadProfileImageWeb(imageWebBytes, fileName);
       }
 
       // ❌ Check if image upload failed (if image was provided)
@@ -83,6 +85,14 @@ class ProfileCubit extends Cubit<ProfileState> {
       await fetchProfileUser(uid);
     } catch (e) {
       emit(ProfileError("Error updating profile: $e"));
+    }
+  }
+
+  Future<void> toggleFollow(String currentUserId, String targetUserId) async {
+    try {
+      await profileRepo.toggleFollow(currentUserId, targetUserId);
+     } catch (e) {
+      emit(ProfileError("Error toggiling follow: $e"));
     }
   }
 }

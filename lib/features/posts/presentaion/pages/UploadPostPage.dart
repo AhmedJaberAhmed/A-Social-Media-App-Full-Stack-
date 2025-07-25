@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram/features/posts/domain/entities/post_entity.dart';
 
+import '../../../../responsive/canstariant_scaffold.dart';
 import '../../../authentication/domain/entities/app_user.dart';
 import '../../../authentication/presentaion/components/my_textField.dart';
 import '../../../authentication/presentaion/cubits/auth_cubit/auth_cubit.dart';
@@ -91,7 +91,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
     return BlocConsumer<PostCubit, PostState>(
       builder: (context, state) {
         if (state is PostILoading || state is PostUploading) {
-          return Scaffold(
+          return ConstrainedScaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
@@ -108,7 +108,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
   }
 
   Widget buildUploadPage() {
-    return Scaffold(
+    return ConstrainedScaffold(
       appBar: AppBar(actions: [
         IconButton(  onPressed: uploadImage , icon:Icon(Icons.upload))
       ],
@@ -124,19 +124,35 @@ class _UploadPostPageState extends State<UploadPostPage> {
             // image preview for mobile
             if (!kIsWeb && imagePickedFile != null)
               Image.file(File(imagePickedFile!.path!)),
-
+SizedBox(height: 30,),
             // pick image button
-            MaterialButton(
+              MaterialButton(
               onPressed: pickImage,
-              color: Colors.blue,
-              child: const Text("Pick Image"),
-            ), // MaterialButton
-
+              color: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              elevation: 2,
+              child: Text(
+                "Pick Image",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            // MaterialButton
+            SizedBox(height: 30,),
             // caption text box
-            MyTextField(
-              controller: textController,
-              hintText: "Caption",
-              obscureText: false,
+            Padding(
+              padding: const EdgeInsets.all(13.0),
+              child: MyTextField(
+                controller: textController,
+                hintText: "Caption",
+                obscureText: false,
+              ),
             ), // MyTextField
           ],
         ), // Column

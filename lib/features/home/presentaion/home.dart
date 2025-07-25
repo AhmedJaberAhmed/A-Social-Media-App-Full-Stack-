@@ -1,9 +1,9 @@
- import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram/features/posts/presentaion/pages/postTile.dart';
 
- import '../../posts/presentaion/cubits/posts_cubit/post_cubit.dart';
+import '../../../responsive/canstariant_scaffold.dart';
+import '../../posts/presentaion/cubits/posts_cubit/post_cubit.dart';
 import '../../posts/presentaion/pages/UploadPostPage.dart';
 import 'components/my_drawer.dart';
 
@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ConstrainedScaffold(
       drawer: MyDrawer(),
       appBar: AppBar(
         foregroundColor: Theme.of(context).colorScheme.primary,
@@ -66,13 +66,22 @@ class _HomePageState extends State<HomePage> {
               );
             }
 
-            return ListView.builder(
-              itemCount: allPosts.length,
-              itemBuilder: (context, index) {
-                final post = allPosts[index];
-                return  PostTile(post: post, onDeletePressed:()=>deletePost(post.id));
+            return RefreshIndicator(
+              onRefresh: () async {
+                fetchAllPosts();
               },
+              child: ListView.builder(
+                itemCount: allPosts.length,
+                itemBuilder: (context, index) {
+                  final post = allPosts[index];
+                  return PostTile(
+                    post: post,
+                    onDeletePressed: () => deletePost(post.id),
+                  );
+                },
+              ),
             );
+
           } else if (state is PostError) {
             return Center(
               child: Text(

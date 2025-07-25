@@ -1,12 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram/features/posts/presentaion/pages/postTile.dart';
+import 'package:instagram/features/profile/presentaion/pages/followers_page.dart';
 
+import '../../../../responsive/canstariant_scaffold.dart';
 import '../../../authentication/presentaion/cubits/auth_cubit/auth_cubit.dart';
 import '../../../posts/presentaion/cubits/posts_cubit/post_cubit.dart';
 import '../component/bio_box.dart';
+import '../component/follow_button.dart';
+import '../component/profile_status.dart';
 import '../cubite/profile_cubit/profile_cubit.dart';
 import 'editProfilePage.dart';
 
@@ -20,39 +23,77 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // cubits
-  late final authCubit = context.read<AuthCubit>();
-  late final profileCubit = context.read<ProfileCubit>();
-
-  int postCount = 0;
+  late AuthCubit authCubit;
+  late ProfileCubit profileCubit;
 
   @override
   void initState() {
     super.initState();
+    authCubit = context.read<AuthCubit>();
+    profileCubit = context.read<ProfileCubit>();
     profileCubit.fetchProfileUser(widget.uid);
+  }
+
+  void followButtonPressed() {
+    final profileState = profileCubit.state;
+    if (profileState is! ProfileLoaded) return;
+
+    final profileUser = profileState.profileUser;
+    final currentUser = authCubit.currentUser;
+
+    final isFollowing = profileUser.followers.contains(currentUser!.uid);
+    setState(() {
+      if (isFollowing) {
+        profileUser.followers.remove(currentUser.uid);
+      } else {
+        profileUser.followers.add(currentUser.uid);
+      }
+    });
+
+    profileCubit.toggleFollow(currentUser.uid, widget.uid).catchError((error) {
+      setState(() {
+        if (isFollowing) {
+          profileUser.followers.add(currentUser.uid);
+        } else {
+          profileUser.followers.remove(currentUser.uid);
+        }
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = authCubit.currentUser;
+    final bool isOwnProfile =
+        currentUser != null && widget.uid == currentUser.uid;
+
+    final postState = context.watch<PostCubit>().state;
+    int postCount = 0;
+    if (postState is PostLoaded) {
+      postCount =
+          postState.posts.where((post) => post.userId == widget.uid).length;
+    }
+
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state is ProfileLoaded) {
           final user = state.profileUser;
-
+  //ConstrainedScaffold
           return Scaffold(
             appBar: AppBar(
               actions: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EditProfilepage(profileUser: user),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.settings),
-                )
+                if (isOwnProfile)
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditProfilepage(profileUser: user),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.settings),
+                  ),
               ],
               centerTitle: true,
               title: Text(user.name),
@@ -62,18 +103,13 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-
-                  // Email
                   Text(
                     user.email,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-
                   const SizedBox(height: 25),
-
-                  // Profile Image
                   CachedNetworkImage(
                     key: ValueKey(
                         '${user.profileImageUrl}?v=${DateTime.now().millisecondsSinceEpoch}'),
@@ -98,17 +134,31 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 25),
-
-                  // Bio Section
+                  ProfileStats(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  FollowersPage(followers: user.followers, following: user.following)));
+                    },
+                    followerCount: user.followers.length,
+                    followingCount: user.following.length,
+                    postCount: postCount,
+                  ),
+                  if (!isOwnProfile)
+                    FollowButton(
+                      onPressed: followButtonPressed,
+                      isFollowing: user.followers.contains(currentUser!.uid),
+                    ),
                   Padding(
                     padding: const EdgeInsets.only(left: 25.0),
                     child: Row(
                       children: [
                         Text(
                           "Bio",
-                          style: TextStyle(
+                          style: TextStyle(fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         )
@@ -116,73 +166,67 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   BioBox(
-                    text: user.bio.isNotEmpty ? user.bio : "No bio added yet.",
+                    text: user.bio,
                   ),
 
-                  // Posts Placeholder
                   Padding(
-                    padding: const EdgeInsets.only(left: 25.0, top: 25),
+                    padding: const EdgeInsets.only(left: 25.0, top: 25,bottom: 14),
                     child: Row(
                       children: [
                         Text(
                           "Posts",
-                          style: TextStyle(
+                          style: TextStyle(fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         )
                       ],
                     ),
                   ),
+                  BlocBuilder<PostCubit, PostState>(
+                    builder: (context, state) {
+                      if (state is PostLoaded) {
+                        final userPosts = state.posts
+                            .where((post) => post.userId == widget.uid)
+                            .toList();
 
-                  BlocBuilder<PostCubit, PostState>(builder: (context, state) {
-                    if (state is PostLoaded) {
-                      final userPosts = state.posts
-                          .where((post) => post.userId == widget.uid)
-                          .toList();
-                      postCount = userPosts.length;
-                      return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: postCount,
-                        itemBuilder: (context, index) {
-                          final post = userPosts[index];
-                          return PostTile(
+                        return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: userPosts.length,
+                          itemBuilder: (context, index) {
+                            final post = userPosts[index];
+                            return PostTile(
                               post: post,
                               onDeletePressed: () {
                                 context.read<PostCubit>().deletePost(post.id);
-                              });
-                        },
-                      );
-                    } else if (state is PostILoading) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      return Center(
-                        child: Text("No Posts"),
-                      );
-                    }
-                  })
+                              },
+                            );
+                          },
+                        );
+                      } else if (state is PostILoading) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        return Center(
+                          child: Text("No Posts"),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
           );
-        }
-
-        // Loading state
-        else if (state is ProfileLoading) {
-          return const Scaffold(
+        } else if (state is ProfileLoading) {
+          return const ConstrainedScaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
           );
-        }
-
-        // Error or empty state
-        else {
-          return const Scaffold(
+        } else {
+          return const ConstrainedScaffold(
             body: Center(
               child: Text("No profile found.."),
             ),

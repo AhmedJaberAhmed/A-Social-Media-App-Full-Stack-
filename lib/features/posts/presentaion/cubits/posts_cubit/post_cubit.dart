@@ -26,7 +26,7 @@ class PostCubit extends Cubit<PostState> {
         imageUrl = await storageRepo.UploadPostImageMobile(imagePath, post.id);
       } else if (imageBytes != null) {
         emit(PostUploading());
-        imageUrl = await storageRepo.UploadPostImageWeb(imageBytes!, post.id);
+        imageUrl = await storageRepo.UploadPostImageWeb(imageBytes, post.id);
       }
 
       final newPost = post.copyWith(imageUrl: imageUrl);

@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram/features/search/presentation/pages/SearchPage.dart';
+import 'package:instagram/features/settings/pages/setting_page.dart';
 
 import '../../../authentication/presentaion/cubits/auth_cubit/auth_cubit.dart';
 import '../../../profile/presentaion/pages/profile_page.dart';
@@ -51,9 +52,25 @@ class MyDrawer extends StatelessWidget {
                     );
                   }),
               MyDrawerTile(
-                  title: "S E A R C H", icon: Icons.search, onTap: () {}),
+                  title: "S E A R C H", icon: Icons.search, onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Searchpage()),
+                );
+
+              }),
               MyDrawerTile(
-                  title: "S E T T I N G S", icon: Icons.settings, onTap: () {}),
+                  title: "S E T T I N G S", icon: Icons.settings, onTap: () {
+
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SettingsPage()),
+                );
+
+              }),
               Spacer(),
               MyDrawerTile(
                   title: "L O G O U T",

@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-
-class BioBox extends StatelessWidget {
+import 'package:flutter/material.dart';class BioBox extends StatelessWidget {
   final String text;
 
   const BioBox({
@@ -11,19 +8,18 @@ class BioBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: double.infinity,
-      // padding inside
+    final trimmedText = text.trim();
+
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(25),
-
       decoration: BoxDecoration(
-        // color
         color: Theme.of(context).colorScheme.secondary,
-      ), // BoxDecoration
-
+      ),
       child: Text(
-        text.isNotEmpty ? text : "Empty bio..",
+        trimmedText.isNotEmpty ? trimmedText : "No bio added yet.",
         style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
       ),
-    ); // Container
+    );
   }
 }

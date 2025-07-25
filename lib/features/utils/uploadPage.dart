@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -68,11 +67,26 @@ class _UploadpageState extends State<Uploadpage> {
                 ? Image.file(_imageFile!)
                 : const Text("No image selected.."),
 
-            // pick image button
             ElevatedButton(
               onPressed: pickImage,
-              child: const Text("Pick image"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade500, // primary
+                foregroundColor: Colors.white, // text color
+                elevation: 4,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Pick Image",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
+
             SizedBox(height: 20,)
             ,  // pick image button
             ElevatedButton(
